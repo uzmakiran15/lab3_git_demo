@@ -4,39 +4,45 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                echo 'Cloning repository...'
-                checkout scm
+                git branch: 'main',
+                    credentialsId: 'your-credential-id',
+                    url: 'https://github.com/your-username/flutter-ci-pipeline-demo.git'
             }
         }
 
-        stage('Install Flutter Dependencies') {
+        stage('Setup Flutter SDK') {
             steps {
-                echo 'Getting Flutter packages...'
+                echo 'Setting up Flutter...'
+                bat '''
+                git clone https://github.com/flutter/flutter.git --branch stable
+                set PATH=%CD%\\flutter\\bin;%PATH%
+                flutter doctor
+                '''
+            }
+        }
+
+        stage('Get Dependencies') {
+            steps {
                 bat 'flutter pub get'
             }
         }
 
-        stage('Run Tests') {
+        stage('Analyze') {
             steps {
-                echo 'Running tests...'
-                bat 'flutter test'
+                bat 'flutter analyze'
             }
         }
 
         stage('Build APK') {
             steps {
-                echo 'Building Flutter APK...'
-                bat 'flutter build apk'
+                bat 'flutter build apk --debug'
             }
         }
-    }
 
-    post {
-        success {
-            echo '✅ Build completed successfully!'
-        }
-        failure {
-            echo '❌ Build failed!'
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/app-debug.apk', fingerprint: true
+            }
         }
     }
 }
