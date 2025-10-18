@@ -5,8 +5,8 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 git branch: 'main',
-                    credentialsId: 'your-credential-id',
-                    url: 'https://github.com/your-username/flutter-ci-pipeline-demo.git'
+                    credentialsId: ' myid',
+                    url: 'https://github.com/uzmakiran15/lab3_git_demo'
             }
         }
 
